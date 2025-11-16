@@ -35,7 +35,32 @@ def list_customer_plans(customer_id: int):
         raise HTTPException(status_code=404, detail="El customer no existe")
     return customer_db.plans
 
+@router.post('/customers/{customer_id}/subscribe/{plan_id}', tags=["Customers"])
+async def subscribe_customer_to_plan(customer_id, plan_id: int, session: SessionDep, status: SubscriptionStatus = Query(default=SubscriptionStatus.ACTIVE)):
+    customer_db = session.get(Customer, customer_id)
+    plan_db = session.get(Plan, plan_id)
+    
+    if not customer_db or not plan_db:
+        raise HTTPException(status_code=404, detail="Customer or Plan not found")
 
+    customer_plan_db = CustomerPlan(plan_id=plan_db.id, customer_id=customer_db.id, status=status)
+
+    session.add(customer_plan_db)
+    session.commit()
+    session.refresh(customer_plan_db)
+    return customer_plan_db
+
+@router.get('/customers/{customer_id}/plans/active', response_model=list[Plan], tags=["Customers"])
+async def list_active_plans(customer_id: int, session: SessionDep):
+    stmt = (
+        select(Plan)
+        .join(CustomerPlan, CustomerPlan.plan_id == Plan.id)
+        .where(
+            CustomerPlan.customer_id == customer_id,
+            CustomerPlan.status == SubscriptionStatus.ACTIVE
+        )
+    )
+    return session.exec(stmt).all()
 
 # check schema 
 # sqlite3 nombre_base.db
