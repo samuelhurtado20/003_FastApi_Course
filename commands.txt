@@ -1,0 +1,52 @@
+python3 -m venv venv curso_fastapi
+
+source venv/bin/activate
+
+pip install "fastapi[standard]"
+
+uvicorn main:app --reload
+
+mkdir curso-fast-api-project
+cd curso-fast-api-project
+
+source ../venv/bin/activate
+
+venv\Scripts\activate
+
+# create file main.py
+
+fastapi dev
+fastapi dev --host="0.0.0.0" src/main.py
+
+
+
+
+pip install tzdata
+
+
+
+
+
+pip install sqlmodel
+
+pip freeze | grep fast
+
+
+# fix
+deactivate
+rmdir -Recurse -Force venv
+python -m venv venv
+.\venv\Scripts\activate
+
+pip install --upgrade pip
+
+# fix
+git remote -v
+git remote -v
+
+git remote remove origin
+git remote add origin https://github.com/samuelhurtado20/003_FastApi_Course.git
+
+git pull origin master
+git push origin master
+git push --force origin master
