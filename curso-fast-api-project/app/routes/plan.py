@@ -62,6 +62,31 @@ async def list_active_plans(customer_id: int, session: SessionDep):
     )
     return session.exec(stmt).all()
 
+
+
+@router.get('/customers/{customer_id}/plans', response_model=list[Plan], tags=["Customers"])
+async def list_customer_plans(
+    customer_id: int,
+    session: SessionDep,
+    status: Optional[SubscriptionStatus] = Query(default=None)
+):
+    if status is None:
+        # todos los planes del customer (sin filtrar por estado)
+        customer_db = session.get(Customer, customer_id)
+        if not customer_db:
+            raise HTTPException(status_code=404, detail="Customer not found")
+        return customer_db.plans
+
+    # filtrado por un estado
+    stmt = (
+        select(Plan)
+        .join(CustomerPlan, CustomerPlan.plan_id == Plan.id)
+        .where(
+            CustomerPlan.customer_id == customer_id,
+            CustomerPlan.status == status
+        )
+    )
+    return session.exec(stmt).all()
 # check schema 
 # sqlite3 nombre_base.db
 # .schema nombre_tabla
