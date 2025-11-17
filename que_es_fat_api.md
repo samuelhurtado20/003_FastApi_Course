@@ -43,3 +43,30 @@ app = FastAPI()
 @app.get("/") def read_root(): return {"message": "Hello, World!"}
 
 Este pequeño ejemplo muestra cómo comenzar con una simple ruta que devuelve un mensaje básico. La capacidad de manejar rutas dinámicas, validar datos y generar documentación automática hacen de FastAPI una opción ideal para proyectos de alta demanda.
+
+
+
+
+
+
+
+
+
+
+Quick setup — if you’ve done this kind of thing before
+or	
+https://github.com/samuelhurtado20/003-FastApi_Course.git
+Get started by creating a new file or uploading an existing file. We recommend every repository include a README, LICENSE, and .gitignore.
+
+…or create a new repository on the command line
+echo "# 003-FastApi_Course" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M master
+git remote add origin https://github.com/samuelhurtado20/003-FastApi_Course.git
+git push -u origin master
+…or push an existing repository from the command line
+git remote add origin https://github.com/samuelhurtado20/003-FastApi_Course.git
+git branch -M master
+git push -u origin master

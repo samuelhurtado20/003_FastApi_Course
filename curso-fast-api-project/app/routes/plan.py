@@ -1,11 +1,16 @@
-from fastapi import APIRouter
-from models import Plan
-from db import session
+from typing import Optional
+from fastapi import APIRouter, HTTPException, Query
+from sqlmodel import select
+from models.plan import Plan
+from db.db2 import SessionDep
+from models.customer import Customer
+from models.plan import CustomerPlan, SubscriptionStatus
+
 
 router = APIRouter()
 
 @router.post('/plans')
-def create_plan(plan_data: Plan):
+def create_plan(plan_data: Plan, session: SessionDep):
     plan_db = Plan.model_validate(plan_data.model_dump())
     session.add(plan_db)
     session.commit()
@@ -14,7 +19,7 @@ def create_plan(plan_data: Plan):
 
 
 @router.post('/customers/{customer_id}/plans/{plan_id}')
-async def subscribe_customer_to_plan(customer_id: int, plan_id: int):
+async def subscribe_customer_to_plan(customer_id: int, plan_id: int, session: SessionDep):
     customer_db = session.get(Customer, customer_id)
     plan_db = session.get(Plan, plan_id)
 
@@ -28,14 +33,8 @@ async def subscribe_customer_to_plan(customer_id: int, plan_id: int):
 
     return customer_plan_db
 
-@router.get('/customers/{customer_id}/plans')
-def list_customer_plans(customer_id: int):
-    customer_db = session.get(Customer, customer_id)
-    if not customer_db:
-        raise HTTPException(status_code=404, detail="El customer no existe")
-    return customer_db.plans
 
-@router.post('/customers/{customer_id}/subscribe/{plan_id}', tags=["Customers"])
+@router.post('/customers/{customer_id}/subscribe/{plan_id}')
 async def subscribe_customer_to_plan(customer_id, plan_id: int, session: SessionDep, status: SubscriptionStatus = Query(default=SubscriptionStatus.ACTIVE)):
     customer_db = session.get(Customer, customer_id)
     plan_db = session.get(Plan, plan_id)
@@ -50,7 +49,8 @@ async def subscribe_customer_to_plan(customer_id, plan_id: int, session: Session
     session.refresh(customer_plan_db)
     return customer_plan_db
 
-@router.get('/customers/{customer_id}/plans/active', response_model=list[Plan], tags=["Customers"])
+
+@router.get('/customers/{customer_id}/plans/active', response_model=list[Plan])
 async def list_active_plans(customer_id: int, session: SessionDep):
     stmt = (
         select(Plan)
@@ -63,8 +63,7 @@ async def list_active_plans(customer_id: int, session: SessionDep):
     return session.exec(stmt).all()
 
 
-
-@router.get('/customers/{customer_id}/plans', response_model=list[Plan], tags=["Customers"])
+@router.get('/customers/{customer_id}/plans', response_model=list[Plan])
 async def list_customer_plans(
     customer_id: int,
     session: SessionDep,

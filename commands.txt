@@ -50,3 +50,4 @@ git remote add origin https://github.com/samuelhurtado20/003_FastApi_Course.git
 git pull origin master
 git push origin master
 git push --force origin master
+Si me pegas el resultado de git remote -v y git log --oneline --decorate --graph --all, te digo exactamente qué es mejor en tu caso.

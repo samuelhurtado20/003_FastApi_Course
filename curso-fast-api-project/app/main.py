@@ -1,14 +1,15 @@
 from datetime import datetime
 from fastapi import FastAPI
 from zoneinfo import ZoneInfo
-from routes.customer import router as customer_router
+from routes import customer, plan
 from db.db2 import create_all_tables
 
 
 
 app = FastAPI(lifespan=create_all_tables)
 
-app.include_router(prefix="/api/v1", router=customer_router, tags=["customers"])
+app.include_router(prefix="/api/v1", router=customer.router, tags=["customer"])
+app.include_router(prefix="/api/v1", router=plan.router, tags=["plan"])
 
 
 @app.get("/")
