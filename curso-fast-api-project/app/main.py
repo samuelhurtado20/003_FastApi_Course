@@ -1,20 +1,31 @@
 from datetime import datetime
-from fastapi import FastAPI
+import time
+from fastapi import FastAPI, Request
 from zoneinfo import ZoneInfo
-from routes.customer import router as customer
-from routes.transaction import router as transaction
-from routes.plan import router as plan
+from routes import customer, transaction, plan
 from db.db2 import create_all_tables
 from fastapi_pagination import add_pagination
 
 
 app = FastAPI(lifespan=create_all_tables)
 
-app.include_router(prefix="/api/v1", router=customer, tags=["customer"])
-app.include_router(prefix="/api/v1", router=transaction, tags=["transaction"])
-#app.include_router(prefix="/api/v1", router=plan, tags=["plan"])
+app.include_router(prefix="/api/v1", router=customer.router, tags=["customer"])
+app.include_router(prefix="/api/v1", router=transaction.router, tags=["transaction"])
+app.include_router(prefix="/api/v1", router=plan.router, tags=["plan"])
 add_pagination(app)
 
+
+@app.middleware("http") 
+async def log_request_headers(request: Request, call_next):    
+    start = time.time()
+    print("Request Headers:")
+    for header, value in request.headers.items():
+        print(f"{header}: {value}")
+    response = await call_next(request)
+    process_time = time.time() - start
+    print(f"Request processed in {process_time:.4f} seconds for {request.url.path}")
+    print(f"Request: {request.url} headers: {dict(request.headers)}")
+    return response
 
 @app.get("/")
 async def root():
@@ -44,7 +55,7 @@ time_formats = {
 }
 
 @app.get('/time/{iso_code}/{time_format}')
-async def time(iso_code: str, time_format: str = '24'):
+async def get_time(iso_code: str, time_format: str = '24'):
     iso = iso_code.upper()
     timezone_str = country_timezones.get(iso)
     time_formatstr = time_formats.get(time_format)
