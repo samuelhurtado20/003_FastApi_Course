@@ -1,9 +1,9 @@
 from enum import Enum
-from typing import Optional
+from typing import TYPE_CHECKING
 from pydantic import BaseModel
 from sqlmodel import Field, Relationship, SQLModel
-from models.customer import Customer
-
+if TYPE_CHECKING:
+    from .customer import Customer
 
 class SubscriptionStatus(str, Enum):
     ACTIVE = "active"
@@ -17,12 +17,15 @@ class CustomerPlan(SQLModel, table=True):
     status: SubscriptionStatus = Field(default=SubscriptionStatus.ACTIVE)
 
 
-class Plan(SQLModel, table=True):
-    id: int | None = Field(primary_key=True)
+class PlanBase(SQLModel):
     name: str = Field(default=None)
     price: int = Field(default=None)
     descripcion: str = Field(default=None)
-    customers: list["Customer"] = Relationship(back_populates="plans", link_model=CustomerPlan)
+
+
+class Plan(PlanBase, table=True):
+    id: int | None = Field(primary_key=True)
+    # customers: list["Customer"] = Relationship(back_populates="plans", link_model=CustomerPlan)
 
 
 

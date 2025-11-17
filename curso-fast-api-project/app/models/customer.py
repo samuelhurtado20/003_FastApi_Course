@@ -1,26 +1,30 @@
-from pydantic import BaseModel
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
+from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .transaction import Transaction
 
 
 class CustomerBase(SQLModel):
-    name: str = Field(default=None)
-    description: str | None = Field(default=None)
-    email: str = Field(default=None)
-    age: int = Field(default=None)
+    name: Optional[str] = None
+    description: Optional[str] = None
+    email: EmailStr
+    age: Optional[int] = None
 
 
 class CustomerCreate(CustomerBase):
     pass
 
 
-class CustomerUpdate(CustomerBase):
-    pass
+class CustomerUpdate(SQLModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    email: Optional[EmailStr] = None
+    age: Optional[int] = None
 
 
 class Customer(CustomerBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    transactions: list["Transaction"] | None = Relationship(back_populates="customer")
+    id: Optional[int] = Field(default=None, primary_key=True)
+    transactions: list["Transaction"] = Relationship(sa_relationship=True, back_populates="customer")

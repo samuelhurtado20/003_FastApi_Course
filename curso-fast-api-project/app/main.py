@@ -1,15 +1,19 @@
 from datetime import datetime
 from fastapi import FastAPI
 from zoneinfo import ZoneInfo
-from routes import customer, plan
+from routes.customer import router as customer
+from routes.transaction import router as transaction
+from routes.plan import router as plan
 from db.db2 import create_all_tables
-
+from fastapi_pagination import add_pagination
 
 
 app = FastAPI(lifespan=create_all_tables)
 
-app.include_router(prefix="/api/v1", router=customer.router, tags=["customer"])
-app.include_router(prefix="/api/v1", router=plan.router, tags=["plan"])
+app.include_router(prefix="/api/v1", router=customer, tags=["customer"])
+app.include_router(prefix="/api/v1", router=transaction, tags=["transaction"])
+#app.include_router(prefix="/api/v1", router=plan, tags=["plan"])
+add_pagination(app)
 
 
 @app.get("/")

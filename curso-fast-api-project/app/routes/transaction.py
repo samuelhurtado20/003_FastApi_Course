@@ -1,33 +1,58 @@
-from fastapi import APIRouter, HTTPException, status
-from sqlmodel import select
+from fastapi import APIRouter, status
+from fastapi_pagination import Page, paginate
+from db.db2 import SessionDep
+from models import Transaction, TransactionCreate
+from services.transaction_service import (
+    create_transaction,
+    list_transactions,
+    delete_transaction,
+    get_transaction_or_404,
+)
 
-from db import SessionDep
-from models import Customer, Transaction, TransactionCreate
-
-router = APIRouter()
+router = APIRouter(prefix="/transactions", tags=["transactions"])
 
 
 @router.post(
-    "/transactions", status_code=status.HTTP_201_CREATED, tags=["transactions"]
+    "/", status_code=status.HTTP_201_CREATED, response_model=Transaction
 )
-async def create_transation(transaction_data: TransactionCreate, session: SessionDep):
-    transaction_data_dict = transaction_data.model_dump()
-    customer = session.get(Customer, transaction_data_dict.get("customer_id"))
-    if not customer:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Customer doesn't exist"
-        )
-
-    transaction_db = Transaction.model_validate(transaction_data_dict)
-    session.add(transaction_db)
-    session.commit()
-    session.refresh(transaction_db)
-
-    return transaction_db
+async def create_transaction_endpoint(
+    transaction_data: TransactionCreate,
+    session: SessionDep,
+):
+    return create_transaction(session, transaction_data)
 
 
-@router.get("/transactions", tags=["transactions"])
-async def list_transaction(session: SessionDep):
-    query = select(Transaction)
-    transactions = session.exec(query).all()
-    return transactions
+@router.get("/", response_model=Page[Transaction])
+async def list_transactions_endpoint(
+    session: SessionDep,
+    customer_id: int | None = None,
+    min_amount: int | None = None,
+    max_amount: int | None = None,
+):
+    transactions = list_transactions(
+        session=session,
+        customer_id=customer_id,
+        min_amount=min_amount,
+        max_amount=max_amount,
+    )
+    return paginate(transactions)
+
+
+@router.get("/{transaction_id}", response_model=Transaction)
+async def get_transaction_endpoint(
+    transaction_id: int,
+    session: SessionDep,
+):
+    return get_transaction_or_404(session, transaction_id)
+
+
+@router.delete(
+    "/{transaction_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_transaction_endpoint(
+    transaction_id: int,
+    session: SessionDep,
+):
+    delete_transaction(session, transaction_id)
+    return None

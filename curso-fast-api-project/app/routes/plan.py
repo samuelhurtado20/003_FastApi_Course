@@ -70,13 +70,13 @@ async def list_customer_plans(
     status: Optional[SubscriptionStatus] = Query(default=None)
 ):
     if status is None:
-        # todos los planes del customer (sin filtrar por estado)
+        # all plans by customer
         customer_db = session.get(Customer, customer_id)
         if not customer_db:
             raise HTTPException(status_code=404, detail="Customer not found")
         return customer_db.plans
 
-    # filtrado por un estado
+    # plans by customer and filtered by status
     stmt = (
         select(Plan)
         .join(CustomerPlan, CustomerPlan.plan_id == Plan.id)
