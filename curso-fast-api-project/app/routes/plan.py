@@ -1,10 +1,10 @@
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import select
-from models.plan import Plan
-from db.db2 import SessionDep
-from models.customer import Customer
-from models.plan import CustomerPlan, SubscriptionStatus
+from app.models.plan import Plan
+from app.db.db2 import SessionDep
+from app.models.customer import Customer
+from app.models.plan import CustomerPlan, SubscriptionStatus
 
 
 router = APIRouter()

@@ -1,7 +1,7 @@
 from typing import Optional, List
 from sqlmodel import Session, select
 from fastapi import HTTPException, status
-from models import Transaction, TransactionCreate, Customer
+from app.models import Transaction, TransactionCreate, Customer
 
 
 def create_transaction(

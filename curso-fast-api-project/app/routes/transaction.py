@@ -1,8 +1,8 @@
 from fastapi import APIRouter, status
 from fastapi_pagination import Page, paginate
-from db.db2 import SessionDep
-from models import Transaction, TransactionCreate
-from services.transaction_service import (
+from app.db.db2 import SessionDep
+from app.models import Transaction, TransactionCreate
+from app.services.transaction_service import (
     create_transaction,
     list_transactions,
     delete_transaction,

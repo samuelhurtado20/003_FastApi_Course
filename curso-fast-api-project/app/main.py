@@ -2,8 +2,8 @@ from datetime import datetime
 import time
 from fastapi import FastAPI, Request
 from zoneinfo import ZoneInfo
-from routes import customer, transaction, plan
-from db.db2 import create_all_tables
+from app.routes import customer, transaction, plan
+from app.db.db2 import create_all_tables
 from fastapi_pagination import add_pagination
 
 
@@ -84,3 +84,15 @@ async def get_time(iso_code: str, time_format: str = '24'):
 
 # sqlite3 db.sqlite3
 # .tables
+
+
+# Get-ChildItem -Recurse -Filter __pycache__ | Remove-Item -Recurse -Force
+# Remove-Item -Recurse -Force .\**\__pycache__\
+# Get-ChildItem -Recurse -Directory -Filter models | Select-Object FullName
+
+# pip install fastapi-pagination
+# pip install zoneinfo
+# pip install "fastapi[all]"
+# pip install sqlalchemy==1.4.46
+# pip install databases[sqlite]
+# pip show databases
