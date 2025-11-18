@@ -1,7 +1,10 @@
 from datetime import datetime
 import time
-from fastapi import FastAPI, Request
+from typing import Annotated
+from fastapi import Depends, FastAPI, Request
 from zoneinfo import ZoneInfo
+
+from fastapi.security import HTTPBasic
 from app.routes import customer, transaction, plan
 from app.db.db2 import create_all_tables
 from fastapi_pagination import add_pagination
@@ -18,17 +21,19 @@ add_pagination(app)
 @app.middleware("http") 
 async def log_request_headers(request: Request, call_next):    
     start = time.time()
-    print("Request Headers:")
+    #print("Request Headers:")
     for header, value in request.headers.items():
         print(f"{header}: {value}")
     response = await call_next(request)
     process_time = time.time() - start
-    print(f"Request processed in {process_time:.4f} seconds for {request.url.path}")
-    print(f"Request: {request.url} headers: {dict(request.headers)}")
+    #print(f"Request processed in {process_time:.4f} seconds for {request.url.path}")
+    #print(f"Request: {request.url} headers: {dict(request.headers)}")
     return response
 
+security = HTTPBasic()
+
 @app.get("/")
-async def root():
+async def root(credentials: Annotated[HTTPBasic, Depends(security)]):
     return {"message": "Hello World"}
 
 
@@ -95,4 +100,4 @@ async def get_time(iso_code: str, time_format: str = '24'):
 # pip install "fastapi[all]"
 # pip install sqlalchemy==1.4.46
 # pip install databases[sqlite]
-# pip show databases
+# pip show databases    https://github.com/fastapi/full-stack-fastapi-template
